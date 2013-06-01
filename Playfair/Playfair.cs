@@ -11,8 +11,19 @@ namespace Playfair
 	{
 		const string ALPHABET = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
 		const int A = 65;
+		const int E = 69;
 		const int J = 74;
+		const int O = 79;
+		const int S = 83;
+		const int U = 85;
 		const int Z = 90;
+		const int Ä = 196;
+		const int Å = 197;
+		const int Æ = 198;
+		const int Ö = 214;
+		const int Ø = 216;
+		const int Ü = 220;
+		const int ß = 223;
 		char[,] playfairSquare = new char[5, 5];
 
 		public char[,] PlayfairSquare
@@ -33,7 +44,7 @@ namespace Playfair
 		}
 
 		/// <summary>
-		/// Cipher a text with the provided secret keyword.
+		/// Ciphers a text with the provided secret keyword.
 		/// </summary>
 		/// <param name="plaintext">Text which should be encrypted.</param>
 		/// <returns>Returns the encrypted text.</returns>
@@ -105,7 +116,7 @@ namespace Playfair
 						inUmlaut = !inUmlaut;
 						break;
 				}
-				if ((int)c < this.A || (int)c > this.Z)
+				if ((int)c < A || (int)c > Z)
 				{
 					corrections--;
 					continue;
@@ -243,12 +254,34 @@ namespace Playfair
 		}
 
 		/// <summary>
+		/// Ciphers a text.
+		/// </summary>
+		/// <param name="plaintext">Text which should be encrypted.</param>
+		/// <param name="keyword">The secret keyword.</param>
+		/// <returns>Returns the encrypted text.</returns>
+		public static string Cipher(string plaintext, string keyword)
+		{
+			return new Playfair(keyword).Cipher(plaintext);
+		}
+
+		/// <summary>
+		/// Deciphers a text.
+		/// </summary>
+		/// <param name="encryptedText">Text which should be decrypted.</param>
+		/// <param name="keyword">The secret keyword</param>
+		/// <returns>Returns the decrpyted text.</returns>
+		public static string Decipher(string encryptedText, string keyword)
+		{
+			return new Playfair(keyword).Decipher(encryptedText);
+		}
+
+		/// <summary>
 		/// Searches in a Square
 		/// </summary>
 		/// <param name="c">The char which I'm looking for...</param>
 		/// <param name="square">The square in which I'm looking for the char c...</param>
 		/// <returns>Returns the position in a two elements big byte-array.</returns>
-		public static int[] SearchInSquare(char c, char[,] square)
+		private int[] SearchInSquare(char c, char[,] square)
 		{
 			for (int i = 0; i < square.GetLength(0); i++)
 			{
@@ -266,11 +299,11 @@ namespace Playfair
 		/// </summary>
 		/// <param name="keyword">The secret keyword.</param>
 		/// <returns>Returns a char array containing the Playfair square</returns>
-		public static char[,] CreatePlayfairSquare(string keyword)
+		private char[,] CreatePlayfairSquare(string keyword)
 		{
 			char[,] result = new char[5, 5];
-			char[] playfairLine = ToNoRepeatCharArray(keyword + ALPHABET);
-			
+			char[] playfairLine = ToNoRepeatCharArray(CleanString(keyword) + ALPHABET);
+
 			if (playfairLine.Length > 25)
 			{
 				throw new ApplicationException("Internal Error! Array too big! (more than 25 elements)");
@@ -292,34 +325,124 @@ namespace Playfair
 		/// </summary>
 		/// <param name="text">The text which should be converted into a char array without repeations.</param>
 		/// <returns>Returns a char array without any repeations.</returns>
-		private static char[] ToNoRepeatCharArray(string text)
+		private char[] ToNoRepeatCharArray(string text)
 		{
-			text = text.ToUpper();
 			// Let's reserve some space because changing size of arrays is slow and needs more space
+			char[] input = text.ToCharArray();
 			char[] result = new char[25];
 			bool[] alreadyGiven = new bool[25];
+
 			int pointer = 0;
-			
 			int value = 0;
 			for (int i = 0; i < text.Length; i++)
 			{
-				value = (int)text[i];
-				if (value < A || value > Z)
-					continue;
+				value = (int)input[i];
 				// Replace J with I (classical...)
 				if (value >= J)
+				{
 					value--;
+				}
 				if (!alreadyGiven[value - A])
 				{
 					alreadyGiven[value - A] = true;
-					result[pointer++] = text[i];
+					result[pointer++] = input[i];
 				}
 			}
 			// Hopefully this condition will never be true...
 			if (pointer < 25)
+			{
 				Array.Resize<char>(ref result, pointer);
-			
+			}
+
 			return result;
+		}
+
+		/// <summary>
+		/// Cleans a string by converting into upper writing and converting umlauts into its two-chars equals.
+		/// </summary>
+		/// <param name="text">The text which schould be cleaned.</param>
+		/// <returns>Cleaned string.</returns>
+		private string CleanString(string text)
+		{
+			char[] input = text.ToUpper().ToCharArray();
+			StringBuilder result = new StringBuilder(text.Length);
+			bool inUmlaut = false;
+			int c;
+			for (int i = 0; i < text.Length; i++)
+			{
+				c = (int)input[i];
+
+				// Convert umlauts into two characters
+				switch (c)
+				{
+					// Ä or Æ -> AE
+					case Ä:
+					case Æ:
+						if (!inUmlaut)
+						{
+							c = A;
+							i--;
+						}
+						else
+						{
+							c = E;
+						}
+						inUmlaut = !inUmlaut;
+						break;
+					// Ö or Ø -> OE
+					case Ö:
+					case Ø:
+						if (!inUmlaut)
+						{
+							c = O;
+							i--;
+						}
+						else
+						{
+							c = E;
+						}
+						inUmlaut = !inUmlaut;
+						break;
+					// Ü -> UE
+					case Ü:
+						if (!inUmlaut)
+						{
+							c = U;
+							i--;
+						}
+						else
+						{
+							c = E;
+						}
+						inUmlaut = !inUmlaut;
+						break;
+					// Å -> AA
+					case Å:
+						if (!inUmlaut)
+						{
+							i--;
+						}
+						c = A;
+						inUmlaut = !inUmlaut;
+						break;
+					// ß -> SS
+					case ß:
+						if (!inUmlaut)
+						{
+							i--;
+						}
+						c = S;
+						inUmlaut = !inUmlaut;
+						break;
+				}
+				// We will remove all other characters
+				if (c < A || c > Z)
+				{
+					continue;
+				}
+				result.Append((char)c);
+			}
+			return result.ToString();
 		}
 	}
 }
