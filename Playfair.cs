@@ -149,30 +149,22 @@ namespace Playfair
                 // Last letters are identical... (possible for XX)
                 if (bufferPos[0] == pos[0] && bufferPos[1] == pos[1])
                 {
-                    bufferPos[0]++;
-                    bufferPos[0] -= ((bufferPos[0] * 7) >> 5) * 5;
-                    bufferPos[1]++;
-                    bufferPos[1] -= ((bufferPos[1] * 7) >> 5) * 5;
-                    pos[0]++;
-                    pos[0] -= ((pos[0] * 7) >> 5) * 5;
-                    pos[1]++;
-                    pos[1] -= ((pos[1] * 7) >> 5) * 5;
+                    bufferPos[0] -= ((++bufferPos[0] * 7) >> 5) * 5;
+                    bufferPos[1] -= ((++bufferPos[1] * 7) >> 5) * 5;
+                    pos[0] -= ((++pos[0] * 7) >> 5) * 5;
+                    pos[1] -= ((++pos[1] * 7) >> 5) * 5;
                 }
                 // Same row
                 else if (bufferPos[0] == pos[0])
                 {
-                    bufferPos[1]++;
-                    bufferPos[1] -= ((bufferPos[1] * 7) >> 5) * 5;
-                    pos[1]++;
-                    pos[1] -= ((pos[1] * 7) >> 5) * 5;
+                    bufferPos[1] -= ((++bufferPos[1] * 7) >> 5) * 5;
+                    pos[1] -= ((++pos[1] * 7) >> 5) * 5;
                 }
                 // Same column
                 else if (bufferPos[1] == pos[1])
                 {
-                    bufferPos[0]++;
-                    bufferPos[0] -= ((bufferPos[0] * 7) >> 5) * 5;
-                    pos[0]++;
-                    pos[0] -= ((pos[0] * 7) >> 5) * 5;
+                    bufferPos[0] -= ((++bufferPos[0] * 7) >> 5) * 5;
+                    pos[0] -= ((++pos[0] * 7) >> 5) * 5;
                 }
                 // Anything else
                 else
