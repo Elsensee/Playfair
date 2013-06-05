@@ -9,21 +9,10 @@ namespace Playfair
 	/// </summary>
 	public class Playfair
 	{
-		const string ALPHABET = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+		const int L_ALPHABET = 25;
 		const int A = 65;
-		const int E = 69;
 		const int J = 74;
-		const int O = 79;
-		const int S = 83;
-		const int U = 85;
 		const int Z = 90;
-		const int Ä = 196;
-		const int Å = 197;
-		const int Æ = 198;
-		const int Ö = 214;
-		const int Ø = 216;
-		const int Ü = 220;
-		const int ß = 223;
 		char[] playfairLine;
 
 		/// <summary>
@@ -67,34 +56,31 @@ namespace Playfair
 			StringBuilder result = new StringBuilder(text.Length);
 			int[] bufferPos = new int[2];
 			int[] pos = new int[2];
-			bool even = false;
 			for (int i = 0; i < text.Length; i++)
 			{
-				if (!even)
+				// TRUE for 0, 2, 4, 6, 8, ... (btw this is faster than mod)
+				if ((i & 1) == 0)
 				{
-					even = true;
-					bufferPos = SearchInLine(text[i], playfairLine);
+					bufferPos = SearchInArray(text[i], playfairLine);
 					continue;
 				}
-				even = false;
-				pos = SearchInLine(text[i], playfairLine);
+				pos = SearchInArray(text[i], playfairLine);
 				// We can put two if-clauses into one :O
 				if (bufferPos[0] == pos[0])
 				{
+					// Same row
+					bufferPos[1] -= ((++bufferPos[1] * 7) >> 5) * 5;
+					pos[1] -= ((++pos[1] * 7) >> 5) * 5;
+
 					if (bufferPos[1] == pos[1])
 					{
 						// Last letters are identical... (possible for XX)
 						bufferPos[0] -= ((++bufferPos[0] * 7) >> 5) * 5;
-						bufferPos[1] -= ((++bufferPos[1] * 7) >> 5) * 5;
 						pos[0] -= ((++pos[0] * 7) >> 5) * 5;
-						pos[1] -= ((++pos[1] * 7) >> 5) * 5;
 						result.Append(playfairLine[(bufferPos[0] * 5) + bufferPos[1]]);
 						result.Append(playfairLine[(pos[0] * 5) + pos[1]]);
 						continue;
 					}
-					// Same row
-					bufferPos[1] -= ((++bufferPos[1] * 7) >> 5) * 5;
-					pos[1] -= ((++pos[1] * 7) >> 5) * 5;
 				}
 				else if (bufferPos[1] == pos[1])
 				{
@@ -128,40 +114,35 @@ namespace Playfair
 
 			int[] bufferPos = new int[2];
 			int[] pos = new int[2];
-			bool even = false;
 			for (int i = 0; i < text.Length; i++)
 			{
-				if (!even)
+				// TRUE for 0, 2, 4, 6, 8, ... (btw this is faster than mod)
+				if ((i & 1) == 0)
 				{
-					even = true;
-					bufferPos = SearchInLine(text[i], playfairLine);
+					bufferPos = SearchInArray(text[i], playfairLine);
 					continue;
 				}
-				even = false;
-				pos = SearchInLine(encryptedText[i], playfairLine);
+				pos = SearchInArray(encryptedText[i], playfairLine);
 				// We can put two if-clauses into one :O
 				if (bufferPos[0] == pos[0])
 				{
-					if (bufferPos[1] == pos[1])
-					{
-						// Last letters are identical... (possible for XX)
-						bufferPos[0] += 9;
-						bufferPos[0] -= ((bufferPos[0] * 7) >> 5) * 5;
-						bufferPos[1] += 9;
-						bufferPos[1] -= ((bufferPos[1] * 7) >> 5) * 5;
-						pos[0] += 9;
-						pos[0] -= ((pos[0] * 7) >> 5) * 5;
-						pos[1] += 9;
-						pos[1] -= ((pos[1] * 7) >> 5) * 5;
-						result.Append(playfairLine[(bufferPos[0] * 5) + bufferPos[1]]);
-						result.Append(playfairLine[(pos[0] * 5) + pos[1]]);
-						continue;
-					}
 					// Same row
 					bufferPos[1] += 9;
 					bufferPos[1] -= ((bufferPos[1] * 7) >> 5) * 5;
 					pos[1] += 9;
 					pos[1] -= ((pos[1] * 7) >> 5) * 5;
+
+					if (bufferPos[1] == pos[1])
+					{
+						// Last letters are identical... (possible for XX)
+						bufferPos[0] += 9;
+						bufferPos[0] -= ((bufferPos[0] * 7) >> 5) * 5;
+						pos[0] += 9;
+						pos[0] -= ((pos[0] * 7) >> 5) * 5;
+						result.Append(playfairLine[(bufferPos[0] * 5) + bufferPos[1]]);
+						result.Append(playfairLine[(pos[0] * 5) + pos[1]]);
+						continue;
+					}
 				}
 				else if (bufferPos[1] == pos[1])
 				{
@@ -213,8 +194,8 @@ namespace Playfair
 		/// <returns>Returns a char array containing the Playfair line</returns>
 		public static char[] CreatePlayfairLine(string keyword)
 		{
-			char[] alphabet = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 			char[] input = CleanString(keyword);
+			char[] alphabet = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 			char[] result = new char[25];
 			bool[] alreadyGiven = new bool[25];
 
@@ -234,11 +215,15 @@ namespace Playfair
 					result[pointer++] = input[i];
 				}
 			}
-			for (int i = 0; i < input.Length; i++)
+			// alphabet.Length = L_ALPHABET = 25 (it's faster than detecting length of that array)
+			if (result.Length < L_ALPHABET)
 			{
-				if (!alreadyGiven[i])
+				for (int i = 0; i < L_ALPHABET; i++)
 				{
-					result[pointer++] = alphabet[i];
+					if (!alreadyGiven[i])
+					{
+						result[pointer++] = alphabet[i];
+					}
 				}
 			}
 			return result;
@@ -253,7 +238,7 @@ namespace Playfair
 		{
 			char[] input = text.ToUpper().ToCharArray();
 			List<char> result = new List<char>(input.Length);
-			for (int i = 0; i < text.Length; i++)
+			for (int i = 0; i < input.Length; i++)
 			{
 				// Convert umlauts into two characters
 				switch (input[i])
@@ -297,18 +282,18 @@ namespace Playfair
 		}
 
 		/// <summary>
-		/// Searches in a Square
+		/// Searches in an array
 		/// </summary>
 		/// <param name="c">The char which I'm looking for...</param>
-		/// <param name="square">The square in which I'm looking for the char c...</param>
-		/// <returns>Returns the position in a two elements big byte-array.</returns>
-		private static int[] SearchInLine(char c, char[] line)
+		/// <param name="square">The array in which I'm looking for the char c...</param>
+		/// <returns>Returns the position in a two elements big int-array.</returns>
+		private static int[] SearchInArray(char c, char[] array)
 		{
 			for (int i = 0; i < 5; i++)
 			{
 				for (int j = 0; j < 5; j++)
 				{
-					if (line[(i * 5) + j] == c)
+					if (array[(i * 5) + j] == c)
 					{
 						return new int[] { i, j };
 					}
