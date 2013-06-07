@@ -1,4 +1,24 @@
-﻿using System;
+﻿/*
+ * Copyright (c) 2013 Oliver Schramm
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -52,7 +72,7 @@ namespace Playfair
 		/// <returns>Returns the encrypted text.</returns>
 		public static string Cipher(string plaintext, char[] playfairLine)
 		{
-			char[] text = CleanString(plaintext);
+			char[] text = CleanString(plaintext, true);
 			StringBuilder result = new StringBuilder(text.Length);
 			int[] bufferPos = new int[2];
 			int[] pos = new int[2];
@@ -69,14 +89,18 @@ namespace Playfair
 				if (bufferPos[0] == pos[0])
 				{
 					// Same row
-					bufferPos[1] -= ((++bufferPos[1] * 7) >> 5) * 5;
-					pos[1] -= ((++pos[1] * 7) >> 5) * 5;
+					bufferPos[1]++;
+					bufferPos[1] -= ((bufferPos[1] * 7) >> 5) * 5;
+					pos[1]++;
+					pos[1] -= ((pos[1] * 7) >> 5) * 5;
 
 					if (bufferPos[1] == pos[1])
 					{
 						// Last letters are identical... (possible for XX)
-						bufferPos[0] -= ((++bufferPos[0] * 7) >> 5) * 5;
-						pos[0] -= ((++pos[0] * 7) >> 5) * 5;
+						bufferPos[0]++;
+						bufferPos[0] -= ((bufferPos[0] * 7) >> 5) * 5;
+						pos[0]++;
+						pos[0] -= ((pos[0] * 7) >> 5) * 5;
 						result.Append(playfairLine[(bufferPos[0] * 5) + bufferPos[1]]);
 						result.Append(playfairLine[(pos[0] * 5) + pos[1]]);
 						continue;
@@ -85,8 +109,10 @@ namespace Playfair
 				else if (bufferPos[1] == pos[1])
 				{
 					// Same column
-					bufferPos[0] -= ((++bufferPos[0] * 7) >> 5) * 5;
-					pos[0] -= ((++pos[0] * 7) >> 5) * 5;
+					bufferPos[0]++;
+					bufferPos[0] -= ((bufferPos[0] * 7) >> 5) * 5;
+					pos[0]++;
+					pos[0] -= ((pos[0] * 7) >> 5) * 5;
 				}
 				else
 				{
@@ -200,23 +226,23 @@ namespace Playfair
 			bool[] alreadyGiven = new bool[25];
 
 			int pointer = 0;
-			int value = 0;
 			for (int i = 0; i < input.Length; i++)
 			{
-				value = (int)input[i];
+				int charValue = 0;
+				charValue = (int)input[i];
 				// Replace J with I (classical)
-				if (value >= J)
+				if (charValue >= J)
 				{
-					value--;
+					charValue--;
 				}
-				if (!alreadyGiven[value - A])
+				if (!alreadyGiven[charValue - A])
 				{
-					alreadyGiven[value - A] = true;
+					alreadyGiven[charValue - A] = true;
 					result[pointer++] = input[i];
 				}
 			}
-			// alphabet.Length = L_ALPHABET = 25 (it's faster than detecting length of that array)
-			if (result.Length < L_ALPHABET)
+			// alphabet.Length = L_ALPHABET = 25 (it's faster than detecting the length of that array)
+			if (pointer < L_ALPHABET)
 			{
 				for (int i = 0; i < L_ALPHABET; i++)
 				{
@@ -233,50 +259,85 @@ namespace Playfair
 		/// Cleans a string by converting into upper writing and converting umlauts into its two-chars equals.
 		/// </summary>
 		/// <param name="text">The text which schould be cleaned.</param>
+		/// <param name="forCipher">If it should be prepared for cipher, set to true.</param>
 		/// <returns>Cleaned string.</returns>
-		private static char[] CleanString(string text)
+		private static char[] CleanString(string text, bool forCipher = false)
 		{
 			char[] input = text.ToUpper().ToCharArray();
 			List<char> result = new List<char>(input.Length);
+
+			int pointer = -1;
 			for (int i = 0; i < input.Length; i++)
 			{
+				pointer++;
 				// Convert umlauts into two characters
 				switch (input[i])
 				{
 					// Ä or Æ -> AE
 					case 'Ä':
 					case 'Æ':
+						if (forCipher && pointer > 0 && result[pointer - 1] == 'A')
+						{
+							result.Add('X');
+						}
 						result.Add('A');
 						result.Add('E');
 						continue;
 					// Ö or Ø -> OE
 					case 'Ö':
 					case 'Ø':
+						if (forCipher && pointer > 0 && result[pointer - 1] == 'O')
+						{
+							result.Add('X');
+						}
 						result.Add('O');
 						result.Add('E');
 						continue;
 					// Ü -> UE
 					case 'Ü':
+						if (forCipher && pointer > 0 && result[pointer - 1] == 'U')
+						{
+							result.Add('X');
+						}
 						result.Add('U');
 						result.Add('E');
 						continue;
 					// Å -> AA
 					case 'Å':
+						if (forCipher && pointer > 0 && result[pointer - 1] == 'A')
+						{
+							result.Add('X');
+						}
 						result.Add('A');
+						result.Add('X');
 						result.Add('A');
 						continue;
 					// ß -> SS
 					case 'ß':
+						if (forCipher && pointer > 0 && result[pointer - 1] == 'S')
+						{
+							result.Add('X');
+						}
 						result.Add('S');
+						result.Add('X');
 						result.Add('S');
 						continue;
 				}
 				// We will remove all other characters
 				if ((int)input[i] < A || (int)input[i] > Z)
 				{
+					pointer--;
 					continue;
 				}
+				if (forCipher && pointer > 0 && result[pointer - 1] == input[i])
+				{
+					result.Add('X');
+				}
 				result.Add(input[i]);
+			}
+			if (forCipher && (result.Count & 1) == 1)
+			{
+				result.Add('X');
 			}
 			return result.ToArray();
 		}

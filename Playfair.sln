@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+# SharpDevelop 4.3
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playfair", "Playfair\Playfair.csproj", "{C19739C2-94FF-40F3-B354-4A4829E78FF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayfairSample", "PlayfairSample\PlayfairSample.csproj", "{A86FEEE9-AE4D-488A-9A24-8F86F57EE652}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C19739C2-94FF-40F3-B354-4A4829E78FF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19739C2-94FF-40F3-B354-4A4829E78FF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19739C2-94FF-40F3-B354-4A4829E78FF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19739C2-94FF-40F3-B354-4A4829E78FF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A86FEEE9-AE4D-488A-9A24-8F86F57EE652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A86FEEE9-AE4D-488A-9A24-8F86F57EE652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A86FEEE9-AE4D-488A-9A24-8F86F57EE652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A86FEEE9-AE4D-488A-9A24-8F86F57EE652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+EndGlobal
