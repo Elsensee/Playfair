@@ -29,7 +29,7 @@ namespace Playfair
 	/// </summary>
 	public class Playfair
 	{
-		const int L_ALPHABET = 25;
+		const int ALPHABET_LENGTH = 25;
 		const int A = 65;
 		const int J = 74;
 		const int Z = 90;
@@ -78,7 +78,7 @@ namespace Playfair
 			int[] pos = new int[2];
 			for (int i = 0; i < text.Length; i++)
 			{
-				// TRUE for 0, 2, 4, 6, 8, ... (btw this is faster than mod)
+				// TRUE for even numbers
 				if ((i & 1) == 0)
 				{
 					bufferPos = SearchInArray(text[i], playfairLine);
@@ -241,10 +241,10 @@ namespace Playfair
 					result[pointer++] = input[i];
 				}
 			}
-			// alphabet.Length = L_ALPHABET = 25 (it's faster than detecting the length of that array)
-			if (pointer < L_ALPHABET)
+			// alphabet.Length = ALPHABET_LENGTH = 25 (it's faster than detecting the length of that array)
+			if (pointer < ALPHABET_LENGTH)
 			{
-				for (int i = 0; i < L_ALPHABET; i++)
+				for (int i = 0; i < ALPHABET_LENGTH; i++)
 				{
 					if (!alreadyGiven[i])
 					{
@@ -309,7 +309,10 @@ namespace Playfair
 							result.Add('X');
 						}
 						result.Add('A');
-						result.Add('X');
+						if (forCipher)
+						{
+							result.Add('X');
+						}
 						result.Add('A');
 						continue;
 					// ß -> SS
@@ -319,7 +322,10 @@ namespace Playfair
 							result.Add('X');
 						}
 						result.Add('S');
-						result.Add('X');
+						if (forCipher)
+						{
+							result.Add('X');
+						}
 						result.Add('S');
 						continue;
 				}
