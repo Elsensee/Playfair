@@ -68,7 +68,7 @@ namespace Playfair
 		/// Ciphers a text.
 		/// </summary>
 		/// <param name="plaintext">Text which should be encrypted.</param>
-		/// <param name="playfairLine">Playfair Line which is created off the keyword.</param>
+		/// <param name="playfairLine">Playfair line which is created off the keyword.</param>
 		/// <returns>Returns the encrypted text.</returns>
 		public static string Cipher(string plaintext, char[] playfairLine)
 		{
@@ -131,7 +131,7 @@ namespace Playfair
 		/// Deciphers a text.
 		/// </summary>
 		/// <param name="encryptedText">Text which should be decrypted.</param>
-		/// <param name="playfairLine">Playfair Line which is created off the keyword.</param>
+		/// <param name="playfairLine">Playfair line which is created off the keyword.</param>
 		/// <returns>Returns the decrypted text.</returns>
 		public static string Decipher(string encryptedText, char[] playfairLine)
 		{
@@ -228,8 +228,7 @@ namespace Playfair
 			int pointer = 0;
 			for (int i = 0; i < input.Length; i++)
 			{
-				int charValue = 0;
-				charValue = (int)input[i];
+				int charValue = (int)input[i];
 				// Replace J with I (classical)
 				if (charValue >= J)
 				{
@@ -279,9 +278,11 @@ namespace Playfair
 						if (forCipher && pointer > 0 && result[pointer - 1] == 'A')
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('A');
 						result.Add('E');
+						pointer++;
 						continue;
 					// Ö or Ø -> OE
 					case 'Ö':
@@ -289,44 +290,54 @@ namespace Playfair
 						if (forCipher && pointer > 0 && result[pointer - 1] == 'O')
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('O');
 						result.Add('E');
+						pointer++;
 						continue;
 					// Ü -> UE
 					case 'Ü':
 						if (forCipher && pointer > 0 && result[pointer - 1] == 'U')
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('U');
 						result.Add('E');
+						pointer++;
 						continue;
 					// Å -> AA
 					case 'Å':
 						if (forCipher && pointer > 0 && result[pointer - 1] == 'A')
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('A');
 						if (forCipher)
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('A');
+						pointer++;
 						continue;
 					// ß -> SS
 					case 'ß':
 						if (forCipher && pointer > 0 && result[pointer - 1] == 'S')
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('S');
 						if (forCipher)
 						{
 							result.Add('X');
+							pointer++;
 						}
 						result.Add('S');
+						pointer++;
 						continue;
 				}
 				// We will remove all other characters
@@ -352,7 +363,7 @@ namespace Playfair
 		/// Searches in an array
 		/// </summary>
 		/// <param name="c">The char which I'm looking for...</param>
-		/// <param name="square">The array in which I'm looking for the char c...</param>
+		/// <param name="array">The array in which I'm looking for the char c...</param>
 		/// <returns>Returns the position in a two elements big int-array.</returns>
 		private static int[] SearchInArray(char c, char[] array)
 		{
